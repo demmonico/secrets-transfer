@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    ### [Gitlab] list Gitlab vars
+    command: bash -c "python adaptors/gitlab_variables.py list 186"
+    ### [Gitlab] list Gitlab vars for staging env
+    #command: bash -c "python adaptors/gitlab_variables.py list 186 staging"
+    ### [Gitlab] export Gitlab vars for all envs
+    #command: bash -c "python adaptors/gitlab_variables.py export 186"
+    ### [Gitlab] export Gitlab vars to file for staging env
+    #command: bash -c "python adaptors/gitlab_variables.py export 186 staging > /secrets/gitlab-secrets.env"
+    ### [AWS] export AWS secret to file
+    #command: bash -c "python adaptors/aws_secrets.py export test-secret > /secrets/test-secret.env"
+    ### [AWS] import AWS secret from file
+    #command: bash -c "cat /secrets/test-secret.env | grep -v -E '^# ' | grep -v -E '^$$' | python adaptors/aws_secrets.py import test-secret2"
+    ### debug
+    #command: bash -c "while true; do sleep 1; done"
+    volumes:
+        # folder contains scripts files
+        - ./src:/app:cached
+        # folder contains secrets files
+        - ./secrets:/secrets
+        # [AWS] required for AWS Secrets Manager
+        - $HOME/.aws/credentials:/root/.aws/credentials:ro
+    env_file:
+      # [Gitlab] required for Gitlab
+      - .env
+    environment:
+      # [AWS] required for AWS Secrets Manager
+      - AWS_PROFILE=$AWS_PROFILE
